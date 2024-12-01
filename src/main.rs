@@ -1,4 +1,4 @@
-use std::{env, process};
+use std::{env, path::Path, process};
 
 mod days;
 
@@ -9,18 +9,23 @@ fn main() {
         .skip(1)
         .next()
         .unwrap_or_else(|| {
-            println!("provide a day to execute");
+            println!("Provide a day to execute T_T");
             process::exit(1)
         })
         .trim()
         .parse::<u32>()
         .unwrap_or_else(|_| {
-            println!("provide the day as a number");
+            println!("Provide the day as a number O.O");
             process::exit(1)
         });
 
+    if !Path::new("inputs").exists() {
+        println!("Create an inputs/ directory and fill it with your puzzle inputs ^-^");
+        process::exit(1)
+    }
+
     match day {
-        0 => println!("Not a day @w@"),
+        0 => println!("Not a day -w-"),
         1 => day_1::run(),
         2 => day_2::run(),
         3 => day_3::run(),
