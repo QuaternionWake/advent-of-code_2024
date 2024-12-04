@@ -53,6 +53,17 @@ pub fn run() {
     }
 
     println!("Number of XMASes found: {xmas_count}");
+
+    let mut x_mas_count = 0;
+    for i in 1..ROWS - 1 {
+        for j in 1..COLS - 1 {
+            if field[i][j] == 'A' && is_x_mas(&field, i, j) {
+                x_mas_count += 1;
+            }
+        }
+    }
+
+    println!("Number of X-MASes found: {x_mas_count}");
 }
 
 fn vertical_slice(field: &[[char; COLS]; ROWS], i: usize, j: usize) -> [char; WORD_LEN] {
@@ -80,4 +91,12 @@ fn sec_diag_slice(field: &[[char; COLS]; ROWS], i: usize, j: usize) -> [char; WO
         field[i + 2][j - 2],
         field[i + 3][j - 3],
     ]
+}
+
+fn is_x_mas(field: &[[char; COLS]; ROWS], i: usize, j: usize) -> bool {
+    let primary = [field[i - 1][j - 1], field[i + 1][j + 1]];
+    let secondary = [field[i - 1][j + 1], field[i + 1][j - 1]];
+
+    (primary == ['M', 'S'] || primary == ['S', 'M'])
+        && (secondary == ['M', 'S'] || secondary == ['S', 'M'])
 }
