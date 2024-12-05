@@ -1,4 +1,4 @@
-use std::fs;
+use std::{cmp, fs};
 
 pub fn run() {
     let input_path = "inputs/day_5.txt";
@@ -17,7 +17,7 @@ pub fn run() {
         })
         .collect();
 
-    let updates: Vec<Vec<i32>> = input[1]
+    let mut updates: Vec<Vec<i32>> = input[1]
         .lines()
         .map(|s| s.split(',').filter_map(|s| s.parse().ok()).collect())
         .collect();
@@ -26,9 +26,21 @@ pub fn run() {
     let mid_sum = ordered_updates.fold(0, |acc, x| acc + x[x.len() / 2]);
 
     println!("Sum of middle pages: {mid_sum}");
+
+    let unordered_updates = updates
+        .iter_mut()
+        .filter(|u| !is_ordered(u, &rules))
+        .map(|u| {
+            u.sort_by(|&lhs, &rhs| compare_pages(&rules, lhs, rhs));
+            u
+        });
+
+    let mid_sum = unordered_updates.fold(0, |acc, x| acc + x[x.len() / 2]);
+
+    println!("Sum of remaining pages: {mid_sum}");
 }
 
-fn is_ordered(update: &Vec<i32>, rules: &Vec<(i32, i32)>) -> bool {
+fn is_ordered(update: &[i32], rules: &[(i32, i32)]) -> bool {
     for i in 0..update.len() {
         for j in i + 1..update.len() {
             if rules.contains(&(update[j], update[i])) {
@@ -38,4 +50,14 @@ fn is_ordered(update: &Vec<i32>, rules: &Vec<(i32, i32)>) -> bool {
     }
 
     true
+}
+
+fn compare_pages(rules: &[(i32, i32)], lhs: i32, rhs: i32) -> cmp::Ordering {
+    if rules.contains(&(lhs, rhs)) {
+        cmp::Ordering::Less
+    } else if rules.contains(&(rhs, lhs)) {
+        cmp::Ordering::Greater
+    } else {
+        cmp::Ordering::Equal
+    }
 }
