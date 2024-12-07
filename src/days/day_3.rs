@@ -1,9 +1,5 @@
-use std::fs;
-
 pub fn run() {
-    let input_path = "inputs/day_3.txt";
-    let input = fs::read_to_string(input_path)
-        .expect(format!("couldn't read input file \"{input_path}\"").as_str());
+    let input = crate::load_input(3);
 
     let mut potential_starts = vec![];
     let chars: Vec<char> = input.chars().collect();

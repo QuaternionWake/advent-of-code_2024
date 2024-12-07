@@ -1,9 +1,7 @@
-use std::{cmp, fs};
+use std::cmp;
 
 pub fn run() {
-    let input_path = "inputs/day_5.txt";
-    let input = fs::read_to_string(input_path)
-        .expect(format!("couldn't read input file \"{input_path}\"").as_str());
+    let input = crate::load_input(5);
 
     let input: Vec<_> = input.split("\n\n").collect();
     assert_eq!(input.len(), 2, "input should contain rules and updates separated by an empty line");

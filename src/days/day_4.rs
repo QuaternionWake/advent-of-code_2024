@@ -1,5 +1,3 @@
-use std::fs;
-
 const ROWS: usize = 140;
 const COLS: usize = 140;
 
@@ -8,9 +6,7 @@ const WORD: [char; WORD_LEN] = ['X', 'M', 'A', 'S'];
 const WORD_REV: [char; WORD_LEN] = ['S', 'A', 'M', 'X'];
 
 pub fn run() {
-    let input_path = "inputs/day_4.txt";
-    let input = fs::read_to_string(input_path)
-        .expect(format!("couldn't read input file \"{input_path}\"").as_str());
+    let input = crate::load_input(4);
 
     let mut field: [[char; COLS]; ROWS] = [['\0'; COLS]; ROWS];
     for (i, line) in input.lines().take(ROWS).enumerate() {

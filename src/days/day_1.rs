@@ -1,9 +1,7 @@
-use std::{collections::HashMap, fs, iter};
+use std::{collections::HashMap, iter};
 
 pub fn run() {
-    let input_path = "inputs/day_1.txt";
-    let input = fs::read_to_string(input_path)
-        .expect(format!("couldn't read input file \"{input_path}\"").as_str());
+    let input = crate::load_input(1);
 
     let mut list_1 = vec![];
     let mut list_2 = vec![];

@@ -1,4 +1,4 @@
-use std::{env, path::Path, process};
+use std::{env, fs, path::Path, process};
 
 mod days;
 
@@ -53,4 +53,10 @@ fn main() {
         25 => day_25::run(),
         _ => println!("Day too big @w@"),
     }
+}
+
+pub fn load_input(day: i32) -> String {
+    let input_path = format!("inputs/day_{day}.txt");
+    fs::read_to_string(&input_path)
+        .unwrap_or_else(|_| panic!("couldn't read input file \"{input_path}\""))
 }

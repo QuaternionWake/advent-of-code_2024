@@ -1,12 +1,10 @@
-use std::{fs, ops::Add};
+use std::ops::Add;
 
 const COLS: usize = 130;
 const ROWS: usize = 130;
 
 pub fn run() {
-    let input_path = "inputs/day_6.txt";
-    let input = fs::read_to_string(input_path)
-        .expect(format!("couldn't read input file \"{input_path}\"").as_str());
+    let input = crate::load_input(6);
 
     let mut field: [[char; COLS]; ROWS] = [['\n'; COLS]; ROWS];
     for (i, line) in input.lines().take(ROWS).enumerate() {
