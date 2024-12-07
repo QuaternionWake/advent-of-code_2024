@@ -15,7 +15,7 @@ pub fn run() {
         }
     }
 
-    let mut guard_pos = field
+    let start_guard_pos = field
         .iter()
         .enumerate()
         .find_map(|(i, l)| {
@@ -24,8 +24,10 @@ pub fn run() {
                 .find_map(|(j, char)| (*char == '^').then_some(Pos::new(j as isize, i as isize)))
         })
         .expect("could not find guard");
-    let mut guard_orient = Orient::Up;
+    let start_guard_orient = Orient::Up;
 
+    let mut guard_pos = start_guard_pos;
+    let mut guard_orient = start_guard_orient;
     field[guard_pos.y as usize][guard_pos.x as usize] = 'X';
     while let Some((new_pos, new_orient)) = take_step(&field, guard_pos, guard_orient) {
         field[new_pos.y as usize][new_pos.x as usize] = 'X';
@@ -42,6 +44,43 @@ pub fn run() {
     // }
 
     println!("Tiles visited: {tiles_visited}");
+
+    let spot_candidates: Vec<_> = field
+        .iter()
+        .enumerate()
+        .flat_map(|(i, l)| {
+            l.iter()
+                .enumerate()
+                .filter_map(move |(j, c)| (*c == 'X').then_some(Pos::new(j as isize, i as isize)))
+        })
+        .collect();
+
+    let mut potential_spot_count = 0;
+    'outer: for (i, candidate) in spot_candidates.iter().enumerate() {
+        eprint!("\r");
+        eprint!("Checking spot {} of {}", i, spot_candidates.len());
+
+        let mut previous_states = vec![(start_guard_pos, start_guard_orient)];
+
+        let mut guard_pos = start_guard_pos;
+        let mut guard_orient = start_guard_orient;
+        let mut field = field; // apparently arrays implement copy?????????
+        field[candidate.y as usize][candidate.x as usize] = '#';
+        while let Some((new_pos, new_orient)) = take_step(&field, guard_pos, guard_orient) {
+            if previous_states.contains(&(new_pos, new_orient)) {
+                potential_spot_count += 1;
+                continue 'outer;
+            }
+            field[new_pos.y as usize][new_pos.x as usize] = 'X';
+
+            previous_states.push((new_pos, new_orient));
+            guard_pos = new_pos;
+            guard_orient = new_orient;
+        }
+    }
+    eprint!("\r");
+
+    println!("Potential obstruction spots: {potential_spot_count}");
 }
 
 fn take_step(field: &[[char; COLS]; ROWS], pos: Pos, orient: Orient) -> Option<(Pos, Orient)> {
@@ -59,7 +98,7 @@ fn take_step(field: &[[char; COLS]; ROWS], pos: Pos, orient: Orient) -> Option<(
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 enum Orient {
     Up,
     Right,
@@ -87,7 +126,7 @@ impl Orient {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 struct Pos {
     x: isize,
     y: isize,
