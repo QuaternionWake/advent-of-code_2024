@@ -16,13 +16,22 @@ pub fn run() {
         .collect();
 
     let mut calibration_sum = 0;
-    for (result, operands) in calibrations {
-        if can_be_calibrated(result, &operands) {
+    for (result, operands) in &calibrations {
+        if can_be_calibrated(*result, operands) {
             calibration_sum += result;
         }
     }
 
     println!("Sum of possible calibrations: {calibration_sum}");
+
+    let mut calibration_sum_with_cat = 0;
+    for (result, operands) in &calibrations {
+        if can_be_calibrated_with_cat(*result, operands) {
+            calibration_sum_with_cat += result;
+        }
+    }
+
+    println!("Sum of possible calibrations with concatenation: {calibration_sum_with_cat}");
 }
 
 fn can_be_calibrated(result: i64, operands: &[i32]) -> bool {
@@ -48,5 +57,29 @@ fn calibrate_rec(wanted_res: i64, acc: i64, operands: &[i32]) -> bool {
     } else {
         calibrate_rec(wanted_res, acc + operands[0] as i64, &operands[1..])
             || calibrate_rec(wanted_res, acc * operands[0] as i64, &operands[1..])
+    }
+}
+
+fn can_be_calibrated_with_cat(result: i64, operands: &[i32]) -> bool {
+    calibrate_rec_with_cat(result, 0, operands)
+}
+
+fn calibrate_rec_with_cat(wanted_res: i64, acc: i64, operands: &[i32]) -> bool {
+    if operands.is_empty() {
+        acc == wanted_res
+    } else if acc > wanted_res {
+        false
+    } else {
+        let add_acc = acc + operands[0] as i64;
+        let mul_acc = acc * operands[0] as i64;
+        let cat_acc = if operands[0] == 0 {
+            acc * 10
+        } else {
+            let log = operands[0].ilog10() + 1;
+            acc * 10_i64.pow(log) + operands[0] as i64
+        };
+        calibrate_rec_with_cat(wanted_res, add_acc, &operands[1..])
+            || calibrate_rec_with_cat(wanted_res, mul_acc, &operands[1..])
+            || calibrate_rec_with_cat(wanted_res, cat_acc, &operands[1..])
     }
 }
