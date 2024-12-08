@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    ops::{Add, Neg, Sub},
+    ops::{Add, AddAssign, Neg, Sub, SubAssign},
 };
 
 const ROWS: usize = 50;
@@ -41,6 +41,18 @@ pub fn run() {
     let antinode_count = antinode_field.as_flattened().iter().filter(|&&b| b).count();
 
     println!("Number of antinodes: {antinode_count}");
+
+    for freq_antennas in antennas.values() {
+        for i in 0..freq_antennas.len() {
+            for j in i + 1..freq_antennas.len() {
+                place_resonant_antinodes(&mut antinode_field, freq_antennas[i], freq_antennas[j]);
+            }
+        }
+    }
+
+    let resonant_antinode_count = antinode_field.as_flattened().iter().filter(|&&b| b).count();
+
+    println!("Number of antinodes: {resonant_antinode_count}");
 }
 
 fn place_antinodes(antinode_field: &mut [[bool; COLS]; ROWS], antenna_1: Pos, antenna_2: Pos) {
@@ -55,6 +67,26 @@ fn place_antinodes(antinode_field: &mut [[bool; COLS]; ROWS], antenna_1: Pos, an
     if (0..COLS).contains(&(antinode_2.x as usize)) && (0..ROWS).contains(&(antinode_2.y as usize))
     {
         antinode_field[antinode_2.y as usize][antinode_2.x as usize] = true;
+    }
+}
+
+fn place_resonant_antinodes(antinode_field: &mut [[bool; 50]; 50], antenna_1: Pos, antenna_2: Pos) {
+    let antenna_distance = antenna_2 - antenna_1;
+
+    let mut antinode_pos = antenna_2;
+    while (0..COLS).contains(&(antinode_pos.x as usize))
+        && (0..ROWS).contains(&(antinode_pos.y as usize))
+    {
+        antinode_field[antinode_pos.y as usize][antinode_pos.x as usize] = true;
+        antinode_pos += antenna_distance;
+    }
+
+    antinode_pos = antenna_1;
+    while (0..COLS).contains(&(antinode_pos.x as usize))
+        && (0..ROWS).contains(&(antinode_pos.y as usize))
+    {
+        antinode_field[antinode_pos.y as usize][antinode_pos.x as usize] = true;
+        antinode_pos -= antenna_distance;
     }
 }
 
@@ -100,5 +132,19 @@ impl Neg for Pos {
             x: -self.x,
             y: -self.y,
         }
+    }
+}
+
+impl AddAssign for Pos {
+    fn add_assign(&mut self, rhs: Self) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+    }
+}
+
+impl SubAssign for Pos {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
     }
 }
